@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container {
+            width: 1300px;
+            height: 600px;
+            border: 1px solid #999;
+        }
+    </style>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=3R2EOUGRdCx0A8xjSsh9XcoCN6hQuBlN"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        // 创建地图实例
+        var map = new BMapGL.Map("container");
+
+        //设置中心点坐标 BMap命名空间下的Point类来创建一个坐标点
+        var point = new BMapGL.Point(120.024156, 30.2983);
+
+		
+		var startPos;
+		var element = document.getElementById("nudge")
+		var showNudgeBanner = ()=>{ nudge.style.display = "block" }
+		var hideNudgeBanner = ()=>{ nudge.style.display = "none" }
+		var nudgeTimeoutId = setTimeout(showNudgeBanner, 5000)
+		var geoSuccess = (position)=>{
+			hideNudgeBanner()
+			// 获取位置后 停止显示 banner
+			clearTimeout(nudgeTimeoutId)
+			// 显示位置
+			startPos = position
+			document.getElementById('startLat').innerHTML = startPos.coords.latitude
+			document.getElementById('startLon').innerHTML = startPos.coords.longitude
+		};
+		var geoError = (error)=>{
+			switch(error.code) {
+			// 用户没有接受通知
+			case error.TIMEOUT: showNudgeBanner(); break;
+		}
+		navigator.geolocation.getCurrentPosition(geoSuccess, geoError);
+		};
+		window.onload = function() {
+			var startPos;
+			var geoSuccess = function(position) {
+				startPos = position;
+				document.getElementById('startLat').innerHTML = startPos.coords.latitude;
+				document.getElementById('startLon').innerHTML = startPos.coords.longitude;
+			};
+			navigator.geolocation.getCurrentPosition(geoSuccess);
+			};
+			var watchId = navigator.geolocation.watchPosition((pos)=>{ 
+				document.getElementById('currentLat').innerHTML = pos.coords.latitude; 
+				document.getElementById('currentLon').innerHTML = pos.coords.longitude; 
+				});
+
+
+
+
+
+        //地图初始化 同时设置地图的级别(3-19)
+        map.centerAndZoom(point, 15);
+
+        //鼠标滚轮 开启鼠标滚轮缩放
+        map.enableScrollWheelZoom(true);
+
+        //添加标注
+        var marker = new BMapGL.Marker(point);
+        map.addOverlay(marker); // 将标注添加到地图中
+
+        //添加监听事件
+        marker.addEventListener("click", function() {
+            alert("您点击了标注");
+        });
+    </script>
+</body>
+
+</html>
